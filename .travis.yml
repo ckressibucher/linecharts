@@ -12,5 +12,5 @@ install:
 script:
   - ./vendor/bin/phpunit --coverage-clover=tests/coverage-clover.xml
 
-#after_sucess:
-#  - travis_retry php ./coveralls.phar --coverage_clover=tests/coverage-clover.xml
+after_sucess:
+  - travis_retry php ./coveralls.phar --coverage_clover=tests/coverage-clover.xml
