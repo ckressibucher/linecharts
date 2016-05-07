@@ -2,3 +2,4 @@
 /vendor/
 /.idea/
 /tests/coverage-clover.xml
+/build
