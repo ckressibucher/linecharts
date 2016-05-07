@@ -1,0 +1,16 @@
+language: php
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+
+install:
+  - wget https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+  - md5sum coveralls | grep 840491b5f2b06312ac8b6f000ab08e2b
+  - composer install --no-interaction
+
+script:
+  - ./vendor/bin/phpunit --coverage-clover=tests/coverage-clover.xml
+
+#after_sucess:
+#  - travis_retry php ./coveralls.phar --coverage_clover=tests/coverage-clover.xml
