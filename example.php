@@ -18,6 +18,8 @@ $grid = new Grid(10, 1);
 // or: 
 // $grid = null;
 
+$margins = [10, 30, 20, 20]; // top, bottom, left, right
+
 $renderer = new SvgRenderer();
-echo $renderer->render($linechart, 800, 600, $grid, 3, true);
+echo $renderer->render($linechart, 800, 600, $grid, 3, true, $margins);
 
