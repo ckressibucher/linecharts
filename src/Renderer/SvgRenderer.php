@@ -22,6 +22,7 @@ class SvgRenderer
      * @param Grid $grid           The grid
      * @param int $precision       Precision used to round values
      * @param string|bool $inlineStyle Css
+     * @param array|null $margins  Top, Bottom, Left, Right margin (or null to set all to 0)
      * @return string
      */
     public function render(
@@ -30,25 +31,47 @@ class SvgRenderer
         $height,
         Grid $grid = null,
         $precision = 3,
-        $inlineStyle = true
+        $inlineStyle = true,
+        $margin = null
     ) {
         $svg = new Svg($width, $height, $inlineStyle);
-        $paths = $this->makePaths($linechart, $width, $height, $precision);
+        $margin = $margin ?: [0, 0, 0, 0];
+        list($top, $bottom, $left, $right) = $margin;
+
+        $imageGeom = new ImageGeom($width, $height, $left, $right, $top, $bottom);
+        $paths = $this->makePaths($linechart, $imageGeom, $precision);
         $svg->addCollection($paths);
         if ($grid) {
-            $gridPaths = $this->makeGridElements($linechart, $grid, $width, $height, $precision);
+            $gridPaths = $this->makeGridElements($linechart, $grid, $imageGeom, $precision);
             $svg->addCollection($gridPaths);
         }
         return $svg->render();
     }
 
-    protected function flipYCoordinates($points, $height)
+    protected function flipYCoordinates(array $points, $height)
     {
         return array_map(function (array $pt) use ($height) {
             list($x, $y) = $pt;
             return [
                 $x,
                 -1 * $y + $height, // mirror y coordinate system
+            ];
+        }, $points);
+    }
+
+    /**
+     * @param array $points (x,y) points in svg coordinates (normalized and flipped)
+     * @param int $marginLeft
+     * @param int $marginTop
+     * @return array
+     */
+    protected function transformByMargin(array $points, $marginLeft, $marginTop)
+    {
+        return array_map(function ($pt) use ($marginLeft, $marginTop) {
+            list($x, $y) = $pt;
+            return [
+                $x + $marginLeft,
+                $y + $marginTop,
             ];
         }, $points);
     }
@@ -80,20 +103,20 @@ class SvgRenderer
         return $normalizedDataSet;
     }
 
-    protected function makePaths(Linechart $linechart, $width, $height, $precision)
+    protected function makePaths(Linechart $linechart, ImageGeom $geom, $precision)
     {
         $sets = $linechart->getDatasets();
         list($xRange, $yRange) = $linechart->getTotalRange();
         $cnt = 1;
         $paths = [];
         foreach ($sets as $dataset) {
-            $paths[] = $this->createPath($dataset, $width, $height, $xRange, $yRange, $precision, $cnt);
+            $paths[] = $this->createPath($dataset, $geom, $xRange, $yRange, $precision, $cnt);
             $cnt++;
         }
         return $paths;
     }
 
-    protected function makeGridElements(Linechart $linechart, Grid $grid, $width, $height, $precision)
+    protected function makeGridElements(Linechart $linechart, Grid $grid, ImageGeom $geom, $precision)
     {
         list($xRange, $yRange) = $linechart->getTotalRange();
         list($xMin, $xMax) = $xRange;
@@ -124,27 +147,28 @@ class SvgRenderer
         $cssY = ['gridline', 'horizontal'];
         foreach ($yLines as $y) {
             $pts = [[$xMin, $y], [$xMax, $y]];
-            $paths[] = $this->createPathFromPoints($pts, $cssY, $width, $height, $xRange, $yRange, $precision);
+            $paths[] = $this->createPathFromPoints($pts, $cssY, $geom, $xRange, $yRange, $precision);
         }
         $cssX = ['gridline', 'vertical'];
         foreach ($xLines as $x) {
             $pts = [[$x, $yMin], [$x, $yMax]];
-            $paths[] = $this->createPathFromPoints($pts, $cssX, $width, $height, $xRange, $yRange, $precision);
+            $paths[] = $this->createPathFromPoints($pts, $cssX, $geom, $xRange, $yRange, $precision);
         }
         return $paths;
     }
 
-    protected function createPath(Dataset $dataset, $width, $height, $xRange, $yRange, $precision, $cnt)
+    protected function createPath(Dataset $dataset, ImageGeom $geom, $xRange, $yRange, $precision, $cnt)
     {
         $points = $dataset->getPoints();
         $cssClasses = $this->getCssClasses($dataset, $cnt);
-        return $this->createPathFromPoints($points, $cssClasses, $width, $height, $xRange, $yRange, $precision);
+        return $this->createPathFromPoints($points, $cssClasses, $geom, $xRange, $yRange, $precision);
     }
 
-    protected function createPathFromPoints(array $points, $cssClasses, $width, $height, $xRange, $yRange, $precision)
+    protected function createPathFromPoints(array $points, $cssClasses, ImageGeom $geom, $xRange, $yRange, $precision)
     {
-        $points = $this->normalizePoints($points, $width, $height, $xRange, $yRange);
-        $points = $this->flipYCoordinates($points, $height);
+        $points = $this->normalizePoints($points, $geom->getDataWidth(), $geom->getDataHeight(), $xRange, $yRange);
+        $points = $this->flipYCoordinates($points, $geom->getDataHeight());
+        $points = $this->transformByMargin($points, $geom->getMarginLeft(), $geom->getMarginTop());
         return new Path($points, implode(' ', $cssClasses), $precision);
     }
 
