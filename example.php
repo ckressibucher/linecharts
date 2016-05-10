@@ -3,6 +3,7 @@
 use Ckr\Linecharts\Renderer\SvgRenderer;
 use Ckr\Linecharts\Linechart;
 use Ckr\Linecharts\Dataset;
+use Ckr\Linecharts\Grid;
 
 include './vendor/autoload.php';
 
@@ -13,6 +14,10 @@ $linechart = new Linechart();
 $linechart->addDataSet(new Dataset($seriesA, 'num of users'));
 $linechart->addDataSet(new Dataset($seriesB, 'num of empty bottles'));
 
+$grid = new Grid(10, 1);
+// or: 
+// $grid = null;
+
 $renderer = new SvgRenderer();
-echo $renderer->render($linechart, 800, 600, 3, true);
+echo $renderer->render($linechart, 800, 600, $grid, 3, true);
 

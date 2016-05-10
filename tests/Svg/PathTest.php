@@ -53,7 +53,7 @@ class SvgPathTest extends \PHPUnit_Framework_TestCase
     public function it_thrws_exception_if_less_than_two_points_defined()
     {
         $this->setExpectedException(\LogicException::class);
-        new Path([[0,10]]);
+        new Path([[0, 10]]);
     }
 
     /**
@@ -61,8 +61,8 @@ class SvgPathTest extends \PHPUnit_Framework_TestCase
      */
     public function it_throws_exception_if_precision_is_not_integer()
     {
-        $this->setExpectedException(\InvalidArgumentException::class); 
-        new Path([[0,0], [10,10]], null, 3.2);
+        $this->setExpectedException(\InvalidArgumentException::class);
+        new Path([[0, 0], [10, 10]], null, 3.2);
     }
 
 }

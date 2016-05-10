@@ -57,5 +57,4 @@ class SvgTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException(\InvalidArgumentException::class);
         new Svg(100, 100, $inlineStyle);
     }
-
 }

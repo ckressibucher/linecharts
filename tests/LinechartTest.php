@@ -1,7 +1,7 @@
 <?php
 
-use Ckr\Linecharts\Renderer\SvgRenderer;
 use Ckr\Linecharts\Linechart;
+use Ckr\Linecharts\Renderer\SvgRenderer;
 
 class LinechartTest extends \PHPUnit_Framework_TestCase
 {
@@ -42,8 +42,8 @@ class LinechartTest extends \PHPUnit_Framework_TestCase
             ],
             [ // only show the area which contains data
                 '0,100L100,0',
-                [[50,0], [100,100]]
-            ]
+                [[50, 0], [100, 100]],
+            ],
         ];
     }
 

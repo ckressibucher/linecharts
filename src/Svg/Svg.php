@@ -2,9 +2,6 @@
 
 namespace Ckr\Linecharts\Svg;
 
-/**
- * TODO separate renderer class
- */
 class Svg implements SvgElement
 {
 
@@ -63,8 +60,8 @@ class Svg implements SvgElement
     public function render()
     {
         // Set default value if `$this::inlineStyle` has unsupported type.
-        // However, this should not be the case as it is validated in constructor       
-        $inlineStyle = ''; 
+        // However, this should not be the case as it is validated in constructor
+        $inlineStyle = '';
         if (true === $this->inlineStyle) {
             $inlineStyle = $this->getDefaultInlineStyle();
         } elseif (false === $this->inlineStyle) {
@@ -95,10 +92,13 @@ class Svg implements SvgElement
     protected function getDefaultInlineStyle()
     {
         $inlineStyle = '<style>
-.line {
+.line, .gridline {
   fill: none;
   stroke: black;
-  stroke-width: 1px;
+  stroke-width: 2px;
+}
+.gridline {
+    stroke-width: 1px;
 }
 .line.dataset-1 {
 	stroke: #2222ff;
@@ -111,6 +111,12 @@ class Svg implements SvgElement
 }
 .line.dataset-4 {
     stroke: #bb9922;
+}
+.gridline.horizontal {
+    stroke: #666666;
+}
+.gridline.vertical {
+    stroke: #aaaaaa;
 }
 </style>';
         return $inlineStyle;
